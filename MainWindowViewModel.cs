@@ -2,32 +2,31 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.IO;
-using System.Text.Json;
 using System.Linq;
-using Microsoft.Win32;
+using ezaim.data;
 
-namespace ezaim {
-    
-    struct GameModel {
-        public string Name {get; set;}
-        public int Value {get; set;}
-    }
-
-    struct GameModelJson {
-        public GameModel[] Models {get; set;}
-    }
-    
+namespace ezaim {    
     public class MainWindowViewModel : INotifyPropertyChanged {
                 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public ICommand ClickCommand {get; set;}
         
+        private GameData[] _models {get; set;}
+
+        private string[] _items;
         public string[] Items 
         {
-            get; set;
+            get {
+                return _items;
+            } 
+            set {
+                _items = value;
+                if(PropertyChanged != null) {
+                    PropertyChanged(this, new PropertyChangedEventArgs(nameof(Items)));
+                }
+            }
         }
-
 
         private string _selectedItem;
         public string SelectedItem {
@@ -35,6 +34,7 @@ namespace ezaim {
                 return _selectedItem;
             } set {
                 _selectedItem = value;
+                selectedItemChange();
                 if(PropertyChanged != null) {
                     PropertyChanged(this, new PropertyChangedEventArgs(nameof(SelectedItem)));
                 }
@@ -58,14 +58,22 @@ namespace ezaim {
         }
 
         private async Task init() {
-            var stream = File.OpenRead("./db.json");
-            var models = await JsonSerializer.DeserializeAsync<GameModelJson>(stream);
-            Items = models.Models.Select(model => model.Name).ToArray();
+            _models = await new GameRepository().GetGames();            
+            Items = _models.Select(model => model.Name).ToArray();
             SelectedItem = Items[0];
+            Value = _models[0].Value;
         }
 
-        private void onClick() {
-            //actually setting the registry key and loading and saving changes to json
+        private void selectedItemChange() {
+            Value = _models.First(item => item.Name == SelectedItem).Value;
+        }
+
+        private async Task onClick() {
+            GameData data = new GameData {
+                Name = SelectedItem,
+                Value = Value
+            };
+            _models = await new GameRepository().UpdateGame(data);
         }
     }
 }
