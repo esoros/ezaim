@@ -1,0 +1,12 @@
+{
+    "games" : [
+        {
+            "name" : "overwatch",
+            "value": 10
+        }, 
+        {
+            "name": "csgo",
+            "value": 5
+        }
+    ]
+}
