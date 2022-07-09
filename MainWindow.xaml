@@ -8,8 +8,24 @@
         Title="MainWindow" Height="450" Width="800">
     <StackPanel>
         <ComboBox SelectedItem="{Binding SelectedItem}" ItemsSource="{Binding Items}"/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0">Quicker</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="1"></TextBlock>
+            <TextBlock HorizontalAlignment="Right" Grid.Row="0" Grid.Column="2">Slower</TextBlock>
+        </Grid>
         <TextBlock Text="{Binding Value}" />
         <Slider Minimum="0" Maximum="20" Value="{Binding Value}" />
-        <Button Command="{Binding ClickCommand}">Save Sensitivity</Button>
+        <StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Button Command="{Binding CalibrateCommand}">Calibrate</Button>
+                <Button Command="{Binding ResetCommand}">Reset</Button>
+            </StackPanel>
+            <Button Command="{Binding ClickCommand}">Save Settings</Button>
+        </StackPanel>
     </StackPanel>
 </Window>

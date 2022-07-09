@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using System.IO;
 using System.Linq;
 using ezaim.data;
 
@@ -11,6 +10,9 @@ namespace ezaim {
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public ICommand ClickCommand {get; set;}
+        public ICommand CalibrateCommand {get; set;}
+
+        public ICommand ResetCommand {get; set;}
         
         private GameData[] _models {get; set;}
 
@@ -41,7 +43,7 @@ namespace ezaim {
             }
         }
 
-        private int _value;
+        private int _value = 0;
         public int Value {
             get {return _value;}
             set {
@@ -52,9 +54,25 @@ namespace ezaim {
             }
         }
 
+        private readonly ProcessWatcher _watcher;
+
         public MainWindowViewModel() {
             ClickCommand = new DelegateCommand((param) => true, (param) => onClick());
-            init();
+            CalibrateCommand = new DelegateCommand((param) => true, (param) => calibrate(Value));
+            ResetCommand = new DelegateCommand((param) => true, (param) => Reset());
+            _watcher = new ProcessWatcher(new GameRepository());
+            _watcher.OnGameLoaded += OnGameLoaded;
+            Task.Run(async () => {
+                await init();
+            });
+        }
+
+        private void OnGameLoaded(object sender, GameData game) {
+            SelectedItem = game.Name;
+        }
+
+        private void Reset() {
+
         }
 
         private async Task init() {
@@ -68,12 +86,17 @@ namespace ezaim {
             Value = _models.First(item => item.Name == SelectedItem).Value;
         }
 
+        private void calibrate(int sensitivity) {
+            _watcher.setSensitivity(sensitivity);
+        }
+
         private async Task onClick() {
             GameData data = new GameData {
                 Name = SelectedItem,
                 Value = Value
             };
             _models = await new GameRepository().UpdateGame(data);
+            System.Windows.MessageBox.Show("Your settings have been saved");
         }
     }
 }

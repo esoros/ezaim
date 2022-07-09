@@ -1,1 +1,1 @@
-{"Games":[{"Name":"overwatch","Value":4, "ProcessName" : ""},{"Name":"csgo","Value":4, "ProcessName": ""}]}
+{"Games":[{"Name":"overwatch","ProcessName":null,"Value":17},{"Name":"csgo","ProcessName":"csgo","Value":14}]}
